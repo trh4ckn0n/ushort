@@ -1,22 +1,19 @@
 <?php
-// shorten.php
+session_start();
 
-// Configuration SQLite
 $db_file = __DIR__ . '/urls.db';
 $db = new PDO("sqlite:$db_file");
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Création de la table si nécessaire
-$db->exec("CREATE TABLE IF NOT EXISTS urls (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    code TEXT UNIQUE,
-    url TEXT NOT NULL,
-    password TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)");
+// Table déjà créée ailleurs
 
-function generateCode($length = 6) {
-    return substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, $length);
+function generateCode($length = 6, $prefix = 'tr') {
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $code = '';
+    for ($i = 0; $i < $length; $i++) {
+        $code .= $chars[random_int(0, strlen($chars) - 1)];
+    }
+    return $prefix . $code;
 }
 
 function isCodeExists($db, $code) {
@@ -26,6 +23,12 @@ function isCodeExists($db, $code) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_SESSION['last_submit']) || time() - $_SESSION['last_submit'] >= 5) {
+        $_SESSION['last_submit'] = time();
+    } else {
+        die("Trop rapide. Merci d'attendre quelques secondes.");
+    }
+
     $url = trim($_POST['url'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
@@ -33,15 +36,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("URL invalide.");
     }
 
-    // On génère un code unique
+    $host = parse_url($url, PHP_URL_HOST);
+    if (in_array($host, ['localhost', '127.0.0.1']) || preg_match('/^(\d{1,3}\.){3}\d{1,3}$/', $host)) {
+        die("Hôte interdit.");
+    }
+
+    // Éviter les doublons si aucun mot de passe
+    $stmt = $db->prepare("SELECT code FROM urls WHERE url = :url AND password IS NULL");
+    $stmt->execute([':url' => $url]);
+    $existing = $stmt->fetchColumn();
+    if ($existing) {
+        header("Location: index.php?short=$existing");
+        exit;
+    }
+
     do {
-        $code = generateCode(6);
+        $code = generateCode(6, 'tr');
     } while (isCodeExists($db, $code));
 
-    // Hash du mot de passe s'il est défini
     $pwd_hash = $password !== '' ? password_hash($password, PASSWORD_DEFAULT) : null;
 
-    // Insert dans la BDD
     $stmt = $db->prepare("INSERT INTO urls (code, url, password) VALUES (:code, :url, :password)");
     $stmt->execute([
         ':code' => $code,
@@ -49,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ':password' => $pwd_hash
     ]);
 
-    // Redirection vers index avec code pour affichage
     header("Location: index.php?short=$code");
     exit;
 }
