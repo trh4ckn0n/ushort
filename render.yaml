@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: trhacknon-urlshort
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: false
