@@ -22,8 +22,8 @@
 
     <?php if (!empty($_GET['short'])): ?>
         <hr/>
-        <p>URL raccourcie : <a href="redirect.php?c=<?=htmlspecialchars($_GET['short'])?>" target="_blank">
-            <?=htmlspecialchars($_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/redirect.php?c=' . $_GET['short'])?>
+        <p>URL raccourcie : <a href="<?=htmlspecialchars($_GET['short'])?>" target="_blank">
+            <?=htmlspecialchars($_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . $_GET['short'])?>
         </a></p>
     <?php endif; ?>
 
