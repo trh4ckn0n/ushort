@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 
     // Redirection vers index avec code pour affichage
-    header("Location: index.php?short=$code");
+    header("Location: $code");
     exit;
 }
 
