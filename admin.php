@@ -5,9 +5,9 @@ $db = new PDO("sqlite:urls.db");
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Protection admin simple par mot de passe
-$admin_password = "trhacknon123";
+$admin_password = "trkn";
 if (!isset($_GET['auth']) || $_GET['auth'] !== $admin_password) {
-    die("Accès refusé. Ajoute ?auth=trhacknon123 à l'URL.");
+    die("Accès refusé. Ajoute ?auth=trkn à l'URL.");
 }
 
 // Liste des URLs
