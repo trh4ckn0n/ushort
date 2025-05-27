@@ -1,90 +1,61 @@
 <?php
 // admin.php
+
 $db = new PDO("sqlite:urls.db");
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Récupérer les URLs
-$urls = $db->query("SELECT * FROM urls ORDER BY created_at DESC")->fetchAll();
-?>
+// Protection admin simple par mot de passe
+$admin_password = "trhacknon123";
+if (!isset($_GET['auth']) || $_GET['auth'] !== $admin_password) {
+    die("Accès refusé. Ajoute ?auth=trhacknon123 à l'URL.");
+}
 
+// Liste des URLs
+$urls = $db->query("SELECT * FROM urls ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - trhacknon URL Tracker</title>
+    <title>Admin - trhacknon URL Shortener</title>
     <style>
-        body {
-            background: #0f0f0f;
-            color: #00ffcc;
-            font-family: 'Courier New', monospace;
-            padding: 20px;
-        }
-        h1, h2, h3 {
-            color: #00ffaa;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 40px;
-        }
-        th, td {
-            border: 1px solid #00ffcc;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #111;
-        }
-        a {
-            color: #00ffff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .shorturl {
-            font-weight: bold;
-            color: #0ff;
-        }
+        body { background: #0f0f0f; color: #0ff; font-family: monospace; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #0ff; padding: 8px; text-align: left; }
+        th { background: #111; }
+        h1 { color: #0f0; }
     </style>
 </head>
 <body>
-
-<h1>Interface Admin - trhacknon URL Shortener</h1>
-
-<?php foreach ($urls as $u): ?>
-    <h2><span class="shorturl"><?= htmlspecialchars($u['code']) ?></span> → <?= htmlspecialchars($u['url']) ?> (<?= $u['hits'] ?> clics)</h2>
-    <small>Créé le <?= htmlspecialchars($u['created_at']) ?></small>
-
-    <?php
-    $clicks = $db->prepare("SELECT * FROM clicks WHERE url_id = ? ORDER BY clicked_at DESC");
-    $clicks->execute([$u['id']]);
-    $clickData = $clicks->fetchAll();
-    ?>
-
-    <?php if ($clickData): ?>
-        <table>
+    <h1>trhacknon URL Shortener - Interface Admin</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>URL</th>
+            <th>Hits</th>
+            <th>Mot de passe</th>
+            <th>Clicks</th>
+        </tr>
+        <?php foreach ($urls as $url): ?>
             <tr>
-                <th>Date</th>
-                <th>IP</th>
-                <th>Pays</th>
-                <th>Ville</th>
-                <th>User-Agent</th>
+                <td><?= $url['id'] ?></td>
+                <td><a href="redirect.php?code=<?= $url['code'] ?>" target="_blank"><?= $url['code'] ?></a></td>
+                <td><?= htmlspecialchars($url['url']) ?></td>
+                <td><?= $url['hits'] ?></td>
+                <td><?= $url['password'] ? 'Oui' : 'Non' ?></td>
+                <td>
+                    <?php
+                    $clicks = $db->prepare("SELECT * FROM clicks WHERE url_id = ?");
+                    $clicks->execute([$url['id']]);
+                    foreach ($clicks as $click) {
+                        echo "IP: {$click['ip']} ({$click['city']}, {$click['country']})<br>UA: {$click['user_agent']}<hr>";
+                    }
+                    ?>
+                </td>
             </tr>
-            <?php foreach ($clickData as $c): ?>
-                <tr>
-                    <td><?= htmlspecialchars($c['clicked_at']) ?></td>
-                    <td><?= htmlspecialchars($c['ip']) ?></td>
-                    <td><?= htmlspecialchars($c['country']) ?></td>
-                    <td><?= htmlspecialchars($c['city']) ?></td>
-                    <td><?= htmlspecialchars($c['user_agent']) ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
-    <?php else: ?>
-        <p>Aucun clic enregistré.</p>
-    <?php endif; ?>
-<?php endforeach; ?>
-
+        <?php endforeach; ?>
+    </table>
 </body>
 </html>
