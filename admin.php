@@ -41,7 +41,7 @@ $urls = $db->query("SELECT * FROM urls ORDER BY id DESC")->fetchAll(PDO::FETCH_A
         <?php foreach ($urls as $url): ?>
             <tr>
                 <td><?= $url['id'] ?></td>
-                <td><a href="redirect.php?code=<?= $url['code'] ?>" target="_blank"><?= $url['code'] ?></a></td>
+                <td><a href="<?= $url['code'] ?>" target="_blank"><?= $url['code'] ?></a></td>
                 <td><?= htmlspecialchars($url['url']) ?></td>
                 <td><?= $url['hits'] ?></td>
                 <td><?= $url['password'] ? 'Oui' : 'Non' ?></td>
