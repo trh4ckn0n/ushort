@@ -1,0 +1,13 @@
+body {
+    background: #0d0d0d;
+    color: #00ffff;
+    font-family: monospace;
+    padding: 20px;
+}
+input, button {
+    background: #111;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 8px;
+}
+hr { border-color: #0f0; }
