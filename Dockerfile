@@ -10,14 +10,11 @@ RUN a2enmod rewrite
 
 # Copier les fichiers du projet dans le conteneur
 COPY . /var/www/html/
-
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 # Copier entrypoint après avoir copié les fichiers du projet
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-
-# Appliquer les bonnes permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
 
 # Configurer Apache pour permettre les .htaccess
 RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
