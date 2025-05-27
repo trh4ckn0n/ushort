@@ -7,7 +7,7 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Table déjà créée ailleurs
 
-function generateCode($length = 6, $prefix = 'tr') {
+function generateCode($length = 6, $prefix = 'trkn') {
     $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $code = '';
     for ($i = 0; $i < $length; $i++) {
