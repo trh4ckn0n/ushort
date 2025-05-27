@@ -11,8 +11,7 @@ RUN a2enmod rewrite
 # Copier les fichiers du projet dans le conteneur
 COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html \
-    && chown www-data:www-data /var/www/html/urls.db
+    && chmod -R 755 /var/www/html
 # Copier entrypoint après avoir copié les fichiers du projet
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
