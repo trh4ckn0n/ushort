@@ -1,7 +1,7 @@
 <?php
 // redirect.php
 
-$db_file = __DIR__ . '/urlshortener.db';
+$db_file = __DIR__ . '/urls.db';
 $db = new PDO("sqlite:$db_file");
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
