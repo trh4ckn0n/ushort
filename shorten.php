@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     do {
-        $code = generateCode(6, 'tr');
+        $code = generateCode(8, 'trkn');
     } while (isCodeExists($db, $code));
 
     $pwd_hash = $password !== '' ? password_hash($password, PASSWORD_DEFAULT) : null;
